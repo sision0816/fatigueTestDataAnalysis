@@ -65,30 +65,39 @@ for cycle in range (1, maxCycle+1):
 #  return the index of data of max strain
    maxStrainCount = loop.Strain[loop.Strain==strainMax].index.tolist()[0]
 # regression the linear part, calculate elastic modulus
-   if loop.index.max()< maxStrainCount+50: #if the last cycle is not long enough will cause error report in the regression, if the loop length not enough, break
-       break
-   xx = loop.loc[maxStrainCount+10:maxStrainCount+50, :]['Strain'] #try to get a series not df or will get error report 'NotImplementedError: Only 2-level MultiIndex are supported.'
-   yy = loop.loc[maxStrainCount+10:maxStrainCount+50, :]['Stress MPa']
-   slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(xx,yy)
-   eModulus = 0.001*slope
-   intercept = intercept
+   eModulusSum = 0
+   i = 0
+   for eModulusRegressionCount in range (10,len(loop.index)/4):
+       if loop.index.max()< maxStrainCount+eModulusRegressionCount: #if the last cycle is not long enough will cause error report in the regression, if the loop length not enough, break
+           break
+       xx = loop.loc[maxStrainCount+5:maxStrainCount+eModulusRegressionCount, :]['Strain'] #try to get a series not df or will get error report 'NotImplementedError: Only 2-level MultiIndex are supported.'
+       yy = loop.loc[maxStrainCount+5:maxStrainCount+eModulusRegressionCount, :]['Stress MPa'] #set tge first fitting starting point is maxStrainCount+10 and end point is maxStrainCount+10
+       slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(xx,yy)
+       eModulus = 0.001*slope 
+       intercept = intercept
+       if r_value**2<0.96:
+            break
+       eModulusRegressionCount=+1
+       eModulusSum=+eModulus
+       i=+1
+       eModulusAve = eModulusSum/i
 # count the acquisition point per cycle
    counts=len(loop.index)
 # itterate each data point, yield stress, effective stress and back stress 
    for count in range(maxStrainCount+50,maxStrainCount+counts):  
-       if loop['Strain'][count]/((loop['Stress MPa'][count]-intercept)/eModulus)<(1-yieldStrain):
+       if loop['Strain'][count]/((loop['Stress MPa'][count]-intercept)/eModulusAve)<(1-yieldStrain):
           yieldStress = loop['Stress MPa'][count]
 #          print 'yield point find'
           break
        if loop['Stress MPa'][count] < stressMean:
-           yieldStress = eModulus*yieldStrain
+           yieldStress = eModulusAve*yieldStrain
            print 'yield point not find'
            break
    effectiveStress = stressMax - yieldStress
    backStress = yieldStress - stressMin
-   elasticStrain = 0.001*stressAmp/eModulus
+   elasticStrain = 0.001*stressAmp/eModulusAve
    plasticStrain = strainAmp - elasticStrain
-   dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulus,yieldStress,elasticStrain,plasticStrain,effectiveStress,backStress]
+   dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve,yieldStress,elasticStrain,plasticStrain,effectiveStress,backStress]
 
 #==============================================================================
 #  write dataframe to  csv
