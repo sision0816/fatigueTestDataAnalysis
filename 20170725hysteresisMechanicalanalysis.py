@@ -67,27 +67,46 @@ for cycle in range (1, 2):
    maxStrainCount = loop.Strain[loop.Strain==strainMax].index.tolist()[0]
 # regression the linear part, calculate elastic modulus
    eModulusSum = 0
-   i = 0
+   i = 0 #for emodulus Nr. count
+   j = 0 # for fitting length shift over the fitting range
    fittingLength = 10 #set the minimum fitting length
-   fittingStartPoint = maxStrainCount + 10 #start fitting from the  maxStrainCount + 10
-   for eModulusRegressionCount in range (10,len(loop.index)/4): 
-       if loop.index.max()< maxStrainCount+eModulusRegressionCount: #if the last cycle is not long enough will cause error report in the regression, if the loop length not enough, break
-           break
-       xx = loop.loc[fittingStartPoint:fittingStartPoint+eModulusRegressionCount, :]['Strain'] #try to get a series not df or will get error report 'NotImplementedError: Only 2-level MultiIndex are supported.'
-       yy = loop.loc[fittingStartPoint:fittingStartPoint+eModulusRegressionCount, :]['Stress MPa'] #set tge first fitting starting point is maxStrainCount+10 and end point is maxStrainCount+10
-       slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(xx,yy)
-       eModulus = 0.001*slope 
-       intercept = intercept
-       print r_value**2
-       eModulusRegressionCount+=1
-       if r_value**2>=0.999:
-           eModulusSum+=eModulus
-           i+=1
-           eModulusAve = eModulusSum/i
-       print eModulus
-       if i>1 and r_value**2<0.999:
-           break
-       print eModulusAve
+   fittingStartPoint = maxStrainCount + 10#start fitting from the  maxStrainCount + 10
+   fittingEndPoint = maxStrainCount + 50 #define the ftting end point at maxStrainCount+50, fitting range definition
+   while fittingStartPoint + fittingLength <= fittingEndPoint and loop.index.max() >= fittingEndPoint:
+       j = 0
+       while fittingStartPoint+j+fittingLength <= fittingEndPoint:
+           xx = loop.loc[fittingStartPoint+j:fittingStartPoint+j+fittingLength,:]['Strain']
+           yy = loop.loc[fittingStartPoint+j:fittingStartPoint+j+fittingLength,:]['Stress MPa']
+           slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(xx,yy)
+           eModulus = 0.001*slope 
+           intercept = intercept
+           print r_value**2
+           print j
+           print eModulus
+           j+=1
+           if r_value**2 >= 0.999:
+               eModulusSum+=eModulus
+               i+=1
+       fittingLength+=1
+   eModulusAve = eModulusSum/i
+#   for eModulusRegressionCount in range (10,len(loop.index)/4): 
+#       if loop.index.max()< maxStrainCount+eModulusRegressionCount: #if the last cycle is not long enough will cause error report in the regression, if the loop length not enough, break
+#           break
+#       xx = loop.loc[fittingStartPoint:fittingStartPoint+eModulusRegressionCount, :]['Strain'] #try to get a series not df or will get error report 'NotImplementedError: Only 2-level MultiIndex are supported.'
+#       yy = loop.loc[fittingStartPoint:fittingStartPoint+eModulusRegressionCount, :]['Stress MPa'] #set tge first fitting starting point is maxStrainCount+10 and end point is maxStrainCount+10
+#       slope, intercept, r_value, p_value, std_err = scipy.stats.linregress(xx,yy)
+#       eModulus = 0.001*slope 
+#       intercept = intercept
+#       print r_value**2
+#       eModulusRegressionCount+=1
+#       if r_value**2>=0.999:
+#           eModulusSum+=eModulus
+#           i+=1
+#           eModulusAve = eModulusSum/i
+#       print eModulus
+#       if i>1 and r_value**2<0.999:
+#           break
+#       print eModulusAve
 # count the acquisition point per cycle
    counts=len(loop.index)
 # itterate each data point, yield stress, effective stress and back stress 
