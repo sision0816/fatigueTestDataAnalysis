@@ -12,12 +12,12 @@ from pandas import DataFrame, read_csv
 # input the read file name and write file name
 #==============================================================================
 #print 'Input the file name you want to analysis:' 
-readFile_original = 'PSIWATER1.csv' # in with csv format and in list
+readFile_original = 'PSIWATER3.csv' # in with csv format and in list
 #print 'Input the file name you want to write the after filtered time sequence data:'
-writeFile_timeSequence = 'PSIWATER1TimeData.csv'
+writeFile_timeSequence = 'PSIWATER3TimeData.csv'
 #print 'Input the file name you want to write the Max Min data:'
-writeFile_maxMin = 'PSIWATER1MaxMinData.csv'
-writeFile_maxMin_simple = 'PSIWATER1MaxMinData_simple.csv'
+writeFile_maxMin = 'PSIWATER3MaxMinData.csv'
+writeFile_maxMin_simple = 'PSIWATER3MaxMinData_simple.csv'
 
 #==============================================================================
 # #input data file
@@ -42,8 +42,8 @@ filtered_df=pd.concat([other_df,filter_df],axis=1)
 #==============================================================================
 # #delete the after failure data
 #==============================================================================
-for j in range(len(filtered_df.index)):
-    if filtered_df['Kraft kN'][j:j+20].std()<0.01: #or can set larger than 0.1. or can set [j:j+10].std(),just for delete non sense data and save computation time
+for j in xrange(len(filtered_df.index),0,-1):
+    if filtered_df['Kraft kN'][j:j+20].std()>0.01: #or can set larger than 0.1. or can set [j:j+10].std(),just for delete non sense data and save computation time
         break
 filtered_df=filtered_df.drop(filtered_df.index[j+1:])
 #write the filtered time sequence data into csv
