@@ -90,7 +90,10 @@ for cycle in range (1, 2):
                eModulusSum_extensive+=eModulus_extensive
                i+=1
        fittingLength_extensive+=1
-   eModulusAve_extensive = eModulusSum_extensive/i
+   try:
+       eModulusAve_extensive = eModulusSum_extensive/i
+   except ZeroDivisionError:
+       eModulusAve_extensive = None
 #   regression the compressive part, calculate the compressive elastic modulus
    eModulusSum_compressive = 0
    h = 0 #for emodulus Nr. count
@@ -114,7 +117,11 @@ for cycle in range (1, 2):
                eModulusSum_compressive+=eModulus_compressive
                h+=1
        fittingLength_compressive+=1
-   eModulusAve_compressive = eModulusSum_compressive/h
+   try:
+       eModulusAve_compressive = eModulusSum_compressive/h
+   except ZeroDivisionError:
+       eModulusAve_compressive = None
+
 #   for eModulusRegressionCount in range (10,len(loop.index)/4): 
 #       if loop.index.max()< maxStrainCount+eModulusRegressionCount: #if the last cycle is not long enough will cause error report in the regression, if the loop length not enough, break
 #           break
@@ -147,9 +154,15 @@ for cycle in range (1, 2):
 #           print 'yield point not find'
 #           break
    effectiveStress = (stressMax - stress_atYieldPoint)/2
-   backStress = stressAmp - effectiveStress
+   backStress = stressAmp - effectiveStress #instead of stressMax - effectiveStress, because case of with mean stress
+# calculate elastic and plastic strain
+   loop_right = loop[loop.Strain>0]
+   loop_left = loop[loop.Strain<0] #divide one loop into left and right two parts
+   index_right = (np.abs(loop_right-stressMean)).argmin() #sort the indexs of left and right points most close to the mean stress
+   index_left = (np.abs(loop_left-stressMean)).argmin()
+   plasticStrain = loop['Strain'][index_right] - loop['Strain'][index_left] #plastic strain defined as the strain axis between the right and left intersection points with loop
    elasticStrain = 0.001*stressAmp/eModulusAve_extensive
-   plasticStrain = strainAmp - elasticStrain
+   anelasticStrain = strainAmp - elasticStrain-plasticStrain
    dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_extensive,eModulusAve_compressive,yieldStress,elasticStrain,plasticStrain,effectiveStress,backStress]
 
 #==============================================================================
