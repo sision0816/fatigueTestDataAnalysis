@@ -51,7 +51,7 @@ df['Strain']=(df['Dehnung_fullrange_SH46 mm']-extensormeterInitialValue)/(gageLe
 # determine the largest cycle number
 #maxCycle=int(df['Zyklus'].max())
 # define the output dataframe of max min data
-dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Extensive Elastic Modulus GPa','Compressive Elastic Modulus GPa','Yield Stress MPa','Elastic Strain','Plastic Strain', 'Effective Stress MPa','Back Stress MPa'])
+dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Extensive Elastic Modulus GPa','Compressive Elastic Modulus GPa','Yield Stress MPa','Elastic Strain','Plastic Strain','Anelastic Strain' 'Effective Stress MPa','Back Stress MPa'])
 
 for cycle in range (1, 2):
    print cycle
@@ -163,7 +163,7 @@ for cycle in range (1, 2):
    plasticStrain = loop['Strain'][index_right] - loop['Strain'][index_left] #plastic strain defined as the strain axis between the right and left intersection points with loop
    elasticStrain = 0.001*stressAmp/eModulusAve_extensive
    anelasticStrain = strainAmp - elasticStrain-plasticStrain
-   dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_extensive,eModulusAve_compressive,yieldStress,elasticStrain,plasticStrain,effectiveStress,backStress]
+   dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_extensive,eModulusAve_compressive,yieldStress,elasticStrain,plasticStrain,anelasticStrain,effectiveStress,backStress] #asign the vale to the dataframe
 
 #==============================================================================
 #  write dataframe to  csv
