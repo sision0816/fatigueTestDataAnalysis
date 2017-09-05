@@ -23,6 +23,13 @@ def maxMinFilter
 
 Class mechanicalAnalysis
 
+def stressStrainMaxMin
+def stressStrainAmpMean
+def eModulus
+def internalStress
+def eplasticStrain
+
+
 
 Class energyCalculation
 
