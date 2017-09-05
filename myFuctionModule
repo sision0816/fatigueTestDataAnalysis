@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 17 14:09:39 2017
+
+@author: chen_w1
+"""
+
+import pandas as pd
+import numpy as np
+from pandas import DataFrame, read_csv
+import matplot
+
+Class dataFilter
+
+def dataCorrection
+
+def deletHoldingCycles
+
+def combineTestParts
+
+def maxMinFilter
+
+
+Class mechanicalAnalysis
+
+
+Class energyCalculation
+
