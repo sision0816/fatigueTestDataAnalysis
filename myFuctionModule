@@ -31,5 +31,6 @@ def eplasticStrain
 
 
 
-Class energyCalculation
 
+Class energyCalculation
+def loopShapeParameter
