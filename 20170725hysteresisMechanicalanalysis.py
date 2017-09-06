@@ -49,11 +49,11 @@ df['Strain']=(df['Dehnung_fullrange_SH46 mm']-extensormeterInitialValue)/(gageLe
 #==============================================================================
 
 # determine the largest cycle number
-#maxCycle=int(df['Zyklus'].max())
+maxCycle=int(df['Zyklus'].max())
 # define the output dataframe of max min data
-dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Extensive Elastic Modulus GPa','Compressive Elastic Modulus GPa','Yield Stress MPa','Elastic Strain','Plastic Strain','Anelastic Strain' 'Effective Stress MPa','Back Stress MPa'])
+dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Extensive Elastic Modulus GPa','Compressive Elastic Modulus GPa','Yield Stress MPa','Elastic Strain','Plastic Strain','Anelastic Strain', 'Effective Stress MPa','Back Stress MPa'])
 
-for cycle in range (1, 2):
+for cycle in range (1, maxCycle):
    print cycle
    loop=df[df.Zyklus==cycle]
    strainMax = loop['Strain'].max()
@@ -71,9 +71,9 @@ for cycle in range (1, 2):
    eModulusSum_extensive = 0
    i = 0 #for emodulus Nr. count
    j = 0 # for fitting length shift over the fitting range
-   fittingLength_extensive = 20 #set the minimum fitting length
+   fittingLength_extensive = 30 #set the minimum fitting length
    fittingStartPoint_extensive = maxStrainCount + 10#start fitting from the  maxStrainCount + 10
-   fittingEndPoint_extensive = maxStrainCount + 50 #define the ftting end point at maxStrainCount+50, fitting range definition
+   fittingEndPoint_extensive = maxStrainCount + 70 #define the ftting end point at maxStrainCount+50, fitting range definition
    while fittingStartPoint_extensive + fittingLength_extensive <= fittingEndPoint_extensive and loop.index.max() >= fittingEndPoint_extensive:
        j = 0
        while fittingStartPoint_extensive+j+fittingLength_extensive <= fittingEndPoint_extensive:
@@ -82,9 +82,9 @@ for cycle in range (1, 2):
            slope_extensive, intercept_extensive, r_value_extensive, p_value_extensive, std_err_extensive = scipy.stats.linregress(xx_extensive,yy_extensive)
            eModulus_extensive = 0.001*slope_extensive 
            intercept_extensive = intercept_extensive
-           print r_value_extensive**2
-           print j
-           print eModulus_extensive
+#           print r_value_extensive**2
+#          print j
+#          print eModulus_extensive
            j+=1
            if r_value_extensive**2 >= 0.999:
                eModulusSum_extensive+=eModulus_extensive
@@ -94,26 +94,28 @@ for cycle in range (1, 2):
        eModulusAve_extensive = eModulusSum_extensive/i
    except ZeroDivisionError:
        eModulusAve_extensive = None
+#       print 'Error' 
+#   print eModulusAve_extensive
 #   regression the compressive part, calculate the compressive elastic modulus
    eModulusSum_compressive = 0
    h = 0 #for emodulus Nr. count
    k = 0 # for fitting length shift over the fitting range
-   fittingLength_compressive = 20 #set the minimum fitting length
+   fittingLength_compressive = 30 #set the minimum fitting length
    fittingStartPoint_compressive = minStrainCount + 10#start fitting from the  maxStrainCount + 10
-   fittingEndPoint_compressive = minStrainCount + 50 #define the ftting end point at maxStrainCount+50, fitting range definition
-   while fittingStartPoint_compressive + fittingLength_compressive <= fittingEndPoint_compressive and loop.index.max() >= fittingEndPoint_compressive:
+   fittingEndPoint_compressive = minStrainCount + 60 #define the ftting end point at maxStrainCount+50, fitting range definition
+   while fittingStartPoint_compressive + fittingLength_compressive <= fittingEndPoint_compressive:
        k = 0
-       while fittingStartPoint_compressive+j+fittingLength_compressive <= fittingEndPoint_compressive:
-           xx_compressive = loop.loc[fittingStartPoint_compressive+j:fittingStartPoint_compressive+j+fittingLength_compressive,:]['Strain']
-           yy_compressive = loop.loc[fittingStartPoint_compressive+j:fittingStartPoint_compressive+j+fittingLength_compressive,:]['Stress MPa']
+       while fittingStartPoint_compressive+k+fittingLength_compressive <= fittingEndPoint_compressive:
+           xx_compressive = loop.loc[fittingStartPoint_compressive+k:fittingStartPoint_compressive+k+fittingLength_compressive,:]['Strain']
+           yy_compressive = loop.loc[fittingStartPoint_compressive+k:fittingStartPoint_compressive+k+fittingLength_compressive,:]['Stress MPa']
            slope_compressive, intercept_compressive, r_value_compressive, p_value_compressive, std_err_compressive = scipy.stats.linregress(xx_compressive,yy_compressive)
            eModulus_compressive = 0.001*slope_compressive 
            intercept_compressive = intercept_compressive
-           print r_value_compressive**2
-           print k
-           print eModulus_compressive
+ #          print r_value_compressive**2
+ #          print k
+ #          print eModulus_compressive
            k+=1
-           if r_value_compressive**2 >= 0.999:
+           if r_value_compressive**2 >= 0.9985:
                eModulusSum_compressive+=eModulus_compressive
                h+=1
        fittingLength_compressive+=1
@@ -121,6 +123,8 @@ for cycle in range (1, 2):
        eModulusAve_compressive = eModulusSum_compressive/h
    except ZeroDivisionError:
        eModulusAve_compressive = None
+#       print 'error'
+#   print eModulusAve_compressive
 
 #   for eModulusRegressionCount in range (10,len(loop.index)/4): 
 #       if loop.index.max()< maxStrainCount+eModulusRegressionCount: #if the last cycle is not long enough will cause error report in the regression, if the loop length not enough, break
@@ -156,13 +160,13 @@ for cycle in range (1, 2):
    effectiveStress = (stressMax - stress_atYieldPoint)/2
    backStress = stressAmp - effectiveStress #instead of stressMax - effectiveStress, because case of with mean stress
 # calculate elastic and plastic strain
-   loop_right = loop[loop.Strain>0]
-   loop_left = loop[loop.Strain<0] #divide one loop into left and right two parts
-   index_right = (np.abs(loop_right-stressMean)).argmin() #sort the indexs of left and right points most close to the mean stress
-   index_left = (np.abs(loop_left-stressMean)).argmin()
+   loop_right = loop[loop.Strain>strainMean]
+   loop_left = loop[loop.Strain<strainMean] #divide one loop into left and right two parts
+   index_right = abs(loop_right['Stress MPa']-stressMean).idxmin() #sort the indexs of left and right points most close to the mean stress
+   index_left = abs(loop_left['Stress MPa']-stressMean).idxmin()
    plasticStrain = loop['Strain'][index_right] - loop['Strain'][index_left] #plastic strain defined as the strain axis between the right and left intersection points with loop
-   elasticStrain = 0.001*stressAmp/eModulusAve_extensive
-   anelasticStrain = strainAmp - elasticStrain-plasticStrain
+   elasticStrain = 2*0.001*stressAmp/eModulusAve_extensive
+   anelasticStrain = 2*strainAmp - elasticStrain-plasticStrain
    dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_extensive,eModulusAve_compressive,yieldStress,elasticStrain,plasticStrain,anelasticStrain,effectiveStress,backStress] #asign the vale to the dataframe
 
 #==============================================================================
