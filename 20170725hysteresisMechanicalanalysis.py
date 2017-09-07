@@ -49,11 +49,11 @@ df['Strain']=(df['Dehnung_fullrange_SH46 mm']-extensormeterInitialValue)/(gageLe
 #==============================================================================
 
 # determine the largest cycle number
-#maxCycle=int(df['Zyklus'].max())
+maxCycle=int(df['Zyklus'].max())
 # define the output dataframe of max min data
 dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Extensive Elastic Modulus GPa','Compressive Elastic Modulus GPa','Yield Stress MPa','Elastic Strain','Plastic Strain','Anelastic Strain', 'Effective Stress MPa','Back Stress MPa'])
 
-for cycle in range (38, 39):
+for cycle in range (1, maxCycle):
    print cycle
    loop=df[df.Zyklus==cycle]
    strainMax = loop['Strain'].max()
@@ -167,21 +167,25 @@ for cycle in range (38, 39):
            loop['Strain'][count]/((loop['Stress MPa'][count]-interceptAve_extensive)/eModulusAve_extensive)<(1-yieldStrain)
        except TypeError:
            stress_atYieldPoint = None
+           yieldStress = None
        else:
            stress_atYieldPoint = loop['Stress MPa'][count]
            yieldStress = stressMax - stress_atYieldPoint
 #          print 'yield point find'
-           break
 #       if loop['Stress MPa'][count] < stressMean:
 #           yieldStress = eModulusAve_extensive*yieldStrain
 #           print 'yield point not find'
 #           break
        try:
-           effectiveStress = (stressMax - stress_atYieldPoint)/2
-           backStress = stressAmp - effectiveStress #instead of stressMax - effectiveStress, because case of with mean stress
+           (stressMax - stress_atYieldPoint)/2
        except TypeError:
            effectiveStress = None
            backStress = None
+           break
+       else:
+           effectiveStress = (stressMax - stress_atYieldPoint)/2
+           backStress = stressAmp - effectiveStress #instead of stressMax - effectiveStress, because case of with mean stress
+           break
 #==============================================================================
 # # calculate elastic and plastic strain
 #==============================================================================
@@ -191,20 +195,24 @@ for cycle in range (38, 39):
    index_left = abs(loop_left['Stress MPa']-stressMean).idxmin()
    plasticStrain = loop['Strain'][index_right] - loop['Strain'][index_left] #plastic strain defined as the strain axis between the right and left intersection points with loop
    try:
-       elasticStrain_extensive = 0.001*stressAmp/eModulusAve_extensive
-       elasticStrain_compressive = 0.001*stressAmp/eModulusAve_compressive
+       0.001*stressAmp/eModulusAve_extensive
+       0.001*stressAmp/eModulusAve_compressive
    except TypeError:
        if eModulusAve_compressive == None:
            if eModulusAve_extensive == None:
                elasticStrain = None
            else:
+               elasticStrain_extensive = 0.001*stressAmp/eModulusAve_extensive
                elasticStrain = 2*elasticStrain_extensive
        if eModulusAve_extensive == None:
            if eModulusAve_compressive == None:
                elasticStrain = None
            else:
+               elasticStrain_compressive = 0.001*stressAmp/eModulusAve_compressive
                elasticStrain = 2*elasticStrain_compressive              
    else:
+       elasticStrain_extensive = 0.001*stressAmp/eModulusAve_extensive
+       elasticStrain_compressive = 0.001*stressAmp/eModulusAve_compressive
        elasticStrain = elasticStrain_extensive + elasticStrain_compressive       
    try:
        anelasticStrain = 2*strainAmp - elasticStrain-plasticStrain
