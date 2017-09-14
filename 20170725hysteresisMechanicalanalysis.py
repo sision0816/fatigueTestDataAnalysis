@@ -19,7 +19,7 @@ readFile_timeSequence = 'experimentTimeData.csv' # in with csv format and in lis
 #print 'Input the file name of first cycle:' 
 readFile_firstCycle =  'Nr17_cycle1_1kN.csv'
 #print 'Input the file name you want to write the after mechanical analysis data:'
-writeFile_mechanicalAnalysisData = 'experimentHysteresisMechanicalAanalysisTest.csv'
+writeFile_mechanicalAnalysisData = 'experimentHysteresisMechanicalAanalysis_20_0.997.csv'
 
 #==============================================================================
 # read the csv data file into dataframe
@@ -31,7 +31,7 @@ df=pd.read_csv(readFile_timeSequence,sep=';')
 # specimen and test parameters
 #==============================================================================
 
-firstCycleFile = pd.read_csv(readFile_firstCycle,sep=';')
+firstCycleFile = pd.read_csv(readFile_firstCycle,sep=';') 
 extensormeterInitialValue = firstCycleFile['Dehnung_fullrange_SH46 mm'][0]
 crossSection = 58.905
 gageLength = 15
@@ -111,7 +111,7 @@ for cycle in range (1, maxCycle):
    interceptSum_compressive = 0
    h = 0 #for emodulus Nr. count
    k = 0 # for fitting length shift over the fitting range
-   fittingLength_compressive = 30 #set the minimum fitting length
+   fittingLength_compressive = 20 #set the minimum fitting length
    fittingStartPoint_compressive = minStrainCount + 10#start fitting from the  maxStrainCount + 10
    fittingEndPoint_compressive = minStrainCount + 60 #define the ftting end point at maxStrainCount+50, fitting range definition
    while fittingStartPoint_compressive + fittingLength_compressive <= fittingEndPoint_compressive:
@@ -126,7 +126,7 @@ for cycle in range (1, maxCycle):
  #          print k
  #          print eModulus_compressive
            k+=1
-           if r_value_compressive**2 >= 0.9985:
+           if r_value_compressive**2 >= 0.997:
                eModulusSum_compressive+=eModulus_compressive
                interceptSum_compressive+=intercept_compressive
                h+=1
