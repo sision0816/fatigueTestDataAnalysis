@@ -15,11 +15,11 @@ from pandas import DataFrame, read_csv,read_excel
 #print 'Input the file name you want to analysis:' 
 readFile_timeSequence = 'experimentTimeData.csv' # in with csv format and in list
 #print 'Input the file name you want to read of hysteresisMechanicalAnalysis result:' 
-readFile_hysteresisMechanicalAnalysis = 'experimentHysteresisMechanicalAanalysis.csv' # in with csv format and in list
+readFile_hysteresisMechanicalAnalysis = 'experimentHysteresisMechanicalAanalysis_20_0.997.csv' # in with csv format and in list
 #print 'Input the file name of first cycle:' 
-readFile_firstCycle = 'Nr19_cycle1_1kN.csv' 
+readFile_firstCycle = 'Nr17_cycle1_1kN.csv' 
 #print 'Input the file name you want to write for the strain enenergy calculation result:'
-writeFile_strainEnergyCalculationResult = 'experimentStrainEnergyCalculationResult.csv'
+writeFile_strainEnergyCalculationResult = 'experimentStrainEnergyCalculationResult1.csv'
 
 #==============================================================================
 # read the csv data file into dataframe
@@ -37,6 +37,7 @@ firstCycleFile = pd.read_csv(readFile_firstCycle,sep=';')
 extensormeterInitialValue = firstCycleFile['Dehnung_fullrange_SH46 mm'][0]
 crossSection = 58.905
 gageLength = 15
+#yieldStrain = 0.0005
 
 #==============================================================================
 # # Stress strain calculation and transfer to stress strain data
@@ -50,9 +51,9 @@ df['Strain']=(df['Dehnung_fullrange_SH46 mm']-extensormeterInitialValue)/(gageLe
 #==============================================================================
 # determine the largest cycle number
 maxCycle=int(df['Zyklus'].max())
-#maxCycle = 100
+#maxCycle = 1000
 # define the output dataframe of max min data
-dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Total Cyclic Strain Energy_simps MJ/m3','Plastic Strain Energy_simps MJ/m3', 'Total Cyclic Strain Energy_trapz MJ/m3','Plastic Strain Energy_trapz MJ/m3','Elastic Strain Energy MJ/m3'])
+dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Total Cyclic Strain Energy_simps MJ/m3','Plastic Strain Energy_simps MJ/m3', 'Total Cyclic Strain Energy_trapz MJ/m3','Plastic Strain Energy_trapz MJ/m3','Elastic Strain Energy MJ/m3','Loop Shape Parameter_simps','Loop Shape Parameter_trapz'])
 
 for cycle in range (1, maxCycle-1):#the maxCycle-1 cycle may cause error in the integration
    print cycle
@@ -100,11 +101,21 @@ for cycle in range (1, maxCycle-1):#the maxCycle-1 cycle may cause error in the 
    energy_totalCyclicStrain_trapz = energy_upperRight_trapz + energy_upperLeft_trapz # total cyclic strain energy
    energy_nonplasticStrain_trapz = np.absolute(scipy.integrate.trapz(np.absolute(yylower_array),np.absolute(xxlower_array),axis=-1))#the integration would be negative value, should get absolute value for area
    energy_plasticStrain_trapz = energy_totalCyclicStrain_trapz - energy_nonplasticStrain_trapz
-   #elastic strain energy
-   energy_elasticStrain = mechanicalAnalysisData['Elastic Strain'][cycle]*stress_atStrainMax
-   
+#==============================================================================
+#    elastic strain energy
+#==============================================================================
+   try:
+       energy_elasticStrain = mechanicalAnalysisData['Elastic Strain'][cycle]*stress_atStrainMax
+   except TypeError:
+       energy_elasticStrain = None
+#==============================================================================
+#    loop shape parameter
+#==============================================================================
+   squareArea = (strainMax-strainMin)*(stressMax-stressMin)
+   shapeParameter_simps = energy_plasticStrain_simps[0]/squareArea
+   shapeParemeter_trapz = energy_plasticStrain_trapz[0]/squareArea
    #output the analysis result
-   dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,energy_totalCyclicStrain_simps[0],energy_plasticStrain_simps[0],energy_totalCyclicStrain_trapz[0],energy_plasticStrain_trapz[0],energy_elasticStrain]
+   dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,energy_totalCyclicStrain_simps[0],energy_plasticStrain_simps[0],energy_totalCyclicStrain_trapz[0],energy_plasticStrain_trapz[0],energy_elasticStrain,shapeParameter_simps,shapeParemeter_trapz]
    
 #==============================================================================
 #  write dataframe to  csv
