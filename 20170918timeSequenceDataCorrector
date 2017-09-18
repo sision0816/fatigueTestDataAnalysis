@@ -47,9 +47,9 @@ filtered_df=filtered_df.drop(filtered_df.index[j+1:])
 # #delete the non data cycles in the end part
 #==============================================================================
 for k in range(len(filter_df.index),1,-1):
-    if filtered_df['Kaft kN'][k] != None:
+    if np.isnan(filtered_df['Kraft kN'][k]):
         break
-filteref_df = filtered_df.drop(filtered_df.index[k])
+filtered_df = filtered_df.drop(filtered_df.index[k:])
 #==============================================================================
 # #write the filtered time sequence data into csv
 #==============================================================================
