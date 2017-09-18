@@ -20,6 +20,8 @@ def combineTestParts
 
 def maxMinFilter
 
+def cycleFilter
+
 
 Class mechanicalAnalysis
 
@@ -34,3 +36,4 @@ def eplasticStrain
 
 Class energyCalculation
 def loopShapeParameter
+
