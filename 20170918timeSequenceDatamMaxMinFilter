@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Sep 18 10:27:35 2017
+
+@author: chen_w1
+"""
+
+import pandas as pd
+import numpy as np
+from pandas import DataFrame, read_csv
+#==============================================================================
+# input the read file name and write file name
+#==============================================================================
+#print 'Input the file name you want to write the after filtered time sequence data:'
+readFile_timeSequence = 'experimentTimeData_part1.csv'
+#print 'Input the file name you want to write the Max Min data:'
+writeFile_maxMin = 'experiment2MaxMinData.csv'
+
+#==============================================================================
+# #input data file
+#==============================================================================
+
+df=pd.read_csv(readFile_timeSequence,sep=';')
+#==============================================================================
+# #filter the max and min data
+#==============================================================================
+maxCycle=int(df['Zyklus'].max())
+# itterate each cycle 
+dfmax=pd.DataFrame(columns = ['Zyklus','Zeit s','Weg mm','Kraft kN','Instron_full_range mm','Temperatur grd'])
+dfmin=pd.DataFrame(columns = ['Zyklus','Zeit s','Weg mm','Kraft kN','Instron_full_range mm','Temperatur grd'])
+for cycle in range (1, maxCycle+1):
+    print cycle
+    df2=df[df.Zyklus==cycle]
+#may use df2[index=df2.index[df2['Dehnung_fullrange_SH46 mm'].max()]], question: stress max or strain max
+    df3=df2.max()
+    df4=df2.min()
+    dfmax=dfmax.append(df3, ignore_index=True)
+    dfmin=dfmin.append(df4, ignore_index=True)
+dfmax.columns = ['Zyklus','Zeit Max s','Weg Max mm','Kraft Max kN','Dehnung_fullrange_SH46 Max mm','Temperatur Max grd']
+dfmin.columns = ['Zyklus','Zeit Min s','Weg Min mm','Kraft Min kN','Dehnung_fullrange_SH46 Min mm','Temperatur Min grd']
+dfMaxMin = pd.merge(dfmax,dfmin,how='outer',on='Zyklus')
+# write dataframe to csv
+
+dfMaxMin.to_csv(writeFile_maxMin,sep=';',index=False)
+  
+print 'finish'
