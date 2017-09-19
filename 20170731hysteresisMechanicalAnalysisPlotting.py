@@ -1,128 +1,45 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jul 31 12:14:58 2017
+Created on Fri Sep 15 11:32:37 2017
 
 @author: chen_w1
 """
-#==============================================================================
-# import the modules
-#==============================================================================
 import pandas as pd
 import numpy as np
 from pandas import DataFrame, read_csv,read_excel
 import scipy
-import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter
+import scipy.stats
 
+def partsBinding (n):# n is parts number
 #==============================================================================
-# read file
+# input the read file name and write file name
 #==============================================================================
-readFile_mechanicalAnalysisData = 'experimentHysteresisMechanicalAanalysis_40_0.995_40_0.995.csv'
-df=pd.read_csv(readFile_mechanicalAnalysisData,sep=';')
-#maximum stress
-plt.figure(1)
-#plt.subplot(321)
-plt.title('Stress vs. Cycle')
-plt.plot(df['Cycle'],df['Stress Max MPa'],'k-',label='Stress max')
-plt.ylabel('Stress [MPa]')
-plt.xlabel('Cycle [-]')
-plt.ylim(239,240.5)
-plt.xscale('log')
-plt.legend(loc=3)
+    for i in range(1,n+1):
+        print 'Type in the {}th part file name, including .csv'.format(i)
+        globals()['readFile_timeSequence_part{}'.format(i)]  = input() #type in the parts file name with '' and .csv, it is very important
+    print 'Type in the output file name, including .csv'
+    writeFile_timeSequence_binded = input()
+#==============================================================================
+# read the csv data file into dataframe
+#==============================================================================
+    for j in range(1,n+1):
+        globals()['df_part{}'.format(j)] = pd.read_csv(globals()['readFile_timeSequence_part{}'.format(j)],sep=';')
+    df_binded = df_part1
+#==============================================================================
+# binding the parts dataframe together
+#==============================================================================
+    for k in range(2,n+1):
+        globals()['df_part{}'.format(k)]['Zeit s'] +=globals()['df_part{}'.format(k-1)]['Zeit s'].max()
+        globals()['df_part{}'.format(k)]['Zyklus'] +=globals()['df_part{}'.format(k-1)]['Zyklus'].max()
+        df_binded = pd.concat([df_binded,globals()['df_part{}'.format(k)]],ignore_index=True)
+#==============================================================================
+# write the binded .csv file
+#==============================================================================
+    df_binded.to_csv(writeFile_timeSequence_binded, sep=';', index = False)
 
-#minimum stress
-#plt.subplot(322)
-plt.figure(2)
-plt.title('Stress vs. Cycle')
-plt.plot(df['Cycle'],df['Stress Min MPa'],'r-',label='Stress min')
-plt.ylabel('Stress [MPa]')
-plt.xlabel('Cycle [-]')
-plt.xscale('log')
-plt.legend(loc=3)
+    print 'finish'   
+    return;
 
-#effective stress and back stress
-#plt.subplot(323)
-plt.figure(3)
-plt.title('Stress vs. Cycle')
-plt.plot(df['Cycle'],df['Back Stress MPa'],'b-',label='Back stress')
-plt.plot(df['Cycle'],df['Effective Stress MPa'],'r-',label='Effective stress')
-plt.ylabel('Stress [MPa]')
-plt.xlabel('Cycle [-]')
-plt.xscale('log')
-plt.legend(loc='center left')
-
-#back stress
-#plt.subplot(324)
-#plt.figure(4)
-#plt.title('Stress vs. Cycle')
-#plt.plot(df['Cycle'],df['Back Stress MPa'],'r-',label='Back stress')
-#plt.ylabel('Stress [MPa]')
-#plt.xlabel('Cycle [-]')
-#plt.xscale('log')
-#plt.legend(loc=3)
-
-#strain amp, strain mean, srain max and min
-#plt.subplot(325)
-plt.figure(5)
-strainMax = plt.subplot()
-strainMin = plt.subplot()
-strainMean = plt.subplot()
-plt.title('Strain vs. Cycle')
-strainMax.plot(df['Cycle'],df['Strain Max'],'k-',label='Strain max')
-strainMin.plot(df['Cycle'],df['Strain Min'],'k--',label='Strain min')
-strainMean.plot(df['Cycle'],df['Strain Mean'],'g-',label='Mean strain')
-plt.ylabel('Strain [-]')
-plt.xlabel('Cycle [-]')
-plt.ylim(-0.0040,0.01)
-plt.xscale('log')
-plt.legend(loc='upper left')
-
-strainAmp = strainMax.twinx()
-strainAmp.plot(df['Cycle'],df['Strain Amplitude'],'b-',label='Strain amplitude')
-strainAmp.spines['right'].set_color('blue')
-strainAmp.tick_params(axis='y', colors='blue')
-plt.ylabel('Strain [-]',color = 'blue')
-plt.xlabel('Cycle [-]')
-plt.ylim(0,0.003)
-plt.xscale('log')
-plt.legend(loc='upper center')
-
-
-#plastic and elastic strain
-#plt.subplot(326)
-plt.figure(6)
-plt.title('Strain vs. Cycle')
-plt.plot(df['Cycle'],df['Plastic Strain'],'k-',label='Plastic strain range')
-plt.plot(df['Cycle'],df['Elastic Strain'],'r-',label='Elastic strain range')
-plt.plot(df['Cycle'],df['Anelastic Strain'],'b-',label='Anelastic strain range')
-plt.ylabel('Strain [-]')
-plt.xlabel('Cycle [-]')
-plt.ylim(-0.001,0.004)
-plt.xscale('log')
-plt.legend(loc='upper left')
-
-#elsatic modulus
-plt.figure(7)
-#plt.subplot(211)
-plt.title('Elastic Modulus vs. Cycle')
-plt.plot(df['Cycle'],df['Extensive Elastic Modulus GPa'],'k-',label='Extensive elastic modulus')
-plt.plot(df['Cycle'],df['Compressive Elastic Modulus GPa'],'r-',label='Compressive elastic modulus')
-plt.ylabel('Elastic modulus [GPa]')
-plt.xlabel('Cycle [-]')
-plt.ylim(100,180)
-plt.xscale('log')
-plt.legend(loc=3)
-
-plt.figure(8)
-#plt.subplot(212)
-plt.title('Stress vs. Cycle')
-plt.plot(df['Cycle'],df['Yield Stress MPa'],'k-',label='Yield stress')
-plt.ylabel('Yield stress [MPa]')
-plt.xlabel('Cycle [-]')
-plt.ylim(0,160)
-plt.xscale('log')
-plt.legend(loc=3)
-#plt.tight_layout()
-
-
-plt.show()
+        
+    
+        
