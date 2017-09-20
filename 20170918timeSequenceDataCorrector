@@ -39,8 +39,8 @@ filtered_df=pd.concat([other_df,filter_df],axis=1)
 #==============================================================================
 # #delete the after failure data
 #==============================================================================
-for j in range(len(filtered_df.index)):
-    if filtered_df['Kraft kN'][j:j+20].std()<0.01: #or can set larger than 0.1. or can set [j:j+10].std(),just for delete non sense data and save computation time
+for j in range(len(filtered_df.index),2,-1):
+    if filtered_df['Kraft kN'][j:j+20].std()>0.01: #or can set larger than 0.1. or can set [j:j+10].std(),just for delete non sense data and save computation time
         break
 filtered_df=filtered_df.drop(filtered_df.index[j+1:])
 #==============================================================================
