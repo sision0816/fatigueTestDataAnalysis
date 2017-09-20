@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 17 14:09:39 2017
+
+@author: chen_w1
+"""
+
+import pandas as pd
+import numpy as np
+from pandas import DataFrame, read_csv
+import matplotlib.pyplot as plt
+from matplotlib.ticker import NullFormatter
+#==============================================================================
+# input the read file name and write file name
+#==============================================================================
+#print 'Input the file name you want to analysis:' 
+readFile_original = 'PSIWATER3TimeData.csv' # in with csv format and in list
+writeFile_timeSequence_noHoldingCycles = 'PSIWATER3TimeData_noHoldingCycles.csv'
+writeFile_maxMin_noHoldingCycles = 'PSIWATER3MaxMinData_noHoldingCycles.csv'
+writeFile_maxMin_noHoldingCycles_simple = 'PSIWATER3MaxMinData_noHoldingCycles_simple.csv'
+
+#==============================================================================
+# #input data file
+#==============================================================================
+
+df=pd.read_csv(readFile_original,sep=',')
+
+#==============================================================================
+# delte the holding cycles
+#==============================================================================
+filtered_df_noHoldingCycles = pd.DataFrame(columns = df.columns) #define the no Holding cycle dataframe
+cycle_new = 1 #renumber the cycle with strain cyclic loading
+for cycle in range(1,df['Zyklus'].max()):
+    print cycle
+    if df[df.Zyklus==cycle]['Sandner_1701_INCEFA mm'].std()>0.01:#the cycle with strain cyclic loading std()= 0.0175
+       filtered_df_loadingCycle= df[df.Zyklus==cycle]
+       filtered_df_loadingCycle['Zyklus'] = cycle_new
+       filtered_df_noHoldingCycles = filtered_df_noHoldingCycles.append(filtered_df_loadingCycle)
+       cycle_new +=1
+filtered_df_noHoldingCycles.to_csv(writeFile_timeSequence_noHoldingCycles, sep=',', index=False)
+  
+print 'finish'
+
