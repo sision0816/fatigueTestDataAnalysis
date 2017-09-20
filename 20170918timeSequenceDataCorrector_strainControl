@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 17 14:09:39 2017
+
+@author: chen_w1
+"""
+
+import pandas as pd
+import numpy as np
+from pandas import DataFrame, read_csv
+#==============================================================================
+# input the read file name and write file name
+#==============================================================================
+#print 'Input the file name you want to analysis:' 
+readFile_original = 'PSIWATER3.csv' # in with csv format and in list
+#print 'Input the file name you want to write the after filtered time sequence data:'
+writeFile_timeSequence = 'PSIWATER3TimeData.csv'
+
+#==============================================================================
+# #input data file
+#==============================================================================
+
+df=pd.read_csv(readFile_original,sep=';')
+
+#==============================================================================
+# #find the starting point of force loading
+#==============================================================================
+for i in range (len(df.index)):
+    print i
+    if df['Sandner_1701_INCEFA mm'][i:i+2].std() < 0.0001:
+        break
+#delete the mean strain loading data, filter_df time sequence data
+
+filter_df=df.loc[i:,'Weg mm':'Temperatur grd']
+for i in range (len(df.index)):
+    print i
+    if df['Sandner_1701_INCEFA mm'][i] > 0.05 and df['Sandner_1701_INCEFA mm'][i:i+2].std() > 0.0001:
+        break
+#delete the before cyclic loading data, filter_df time sequence data
+filter_df=df.loc[i:,'Weg mm':'Temperatur grd']
+#the Zeit and Zyklus columns
+other_df=df[['Zeit s','Zyklus']]
+#reset the index of filter_df    
+filter_df=filter_df.reset_index(drop=True)
+#combine the columns together, output the after filtered dataframe
+filtered_df=pd.concat([other_df,filter_df],axis=1)
+#==============================================================================
+# #delete the after failure data
+#==============================================================================
+for j in range(len(filtered_df.index),2,-1):
+    print j
+    if filtered_df['Kraft kN'][j:j+20].std()>0.01: #or can set larger than 0.1. or can set [j:j+10].std(),just for delete non sense data and save computation time
+        break
+filtered_df=filtered_df.drop(filtered_df.index[j+1:])
+#==============================================================================
+# #delete the non data cycles in the end part
+#==============================================================================
+for k in range(len(filtered_df.index)-1,1,-1):
+    print k
+    if np.isnan(filtered_df['Kraft kN'][k]) == False:
+        break
+filtered_df = filtered_df.drop(filtered_df.index[k:])
+#==============================================================================
+# #write the filtered time sequence data into csv
+#==============================================================================
+filtered_df.to_csv(writeFile_timeSequence, sep=',', index=False)
+
+
+  
+print 'finish'
+
