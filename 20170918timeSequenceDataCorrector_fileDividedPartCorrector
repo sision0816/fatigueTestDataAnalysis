@@ -57,7 +57,7 @@ for n in range (len(df.index)):
     if df['Kraft kN'][n:n+2].std() > 0.02:
         break
 #delete the before cyclic loading data, filter_df time sequence data
-filter_df=df.loc[n:,'Weg mm':'Temperatur grd']
+filter_df=df.iloc[n:,2:]
 #the Zeit and Zyklus columns
 other_df=df[['Zeit s','Zyklus']]
 #reset the index of filter_df    
