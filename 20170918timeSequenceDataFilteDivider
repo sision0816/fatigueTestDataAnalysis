@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 17 14:09:39 2017
+
+@author: chen_w1
+"""
+
+import pandas as pd
+import numpy as np
+from pandas import DataFrame, read_csv
+ 
+#==============================================================================
+# input the read file name and write file name
+#==============================================================================
+#print 'Input the file name you want to analysis:' 
+readFile_original = 'PSIWATER3TimeData.csv' # in with csv format and in list
+
+
+#==============================================================================
+# #input data file
+#==============================================================================
+
+
+df=pd.read_csv(readFile_original,sep=',')
+
+
+strain_mean = 0.05
+df_temp = df
+i = 1
+for cycle in range(1,df['Zyklus'].max()):
+    print cycle
+    strain_max = df_temp[df_temp.Zyklus==cycle]['Sandner_1701_INCEFA mm'].max()
+    strain_max_nextCycle = df_temp[df_temp.Zyklus==(cycle+1)]['Sandner_1701_INCEFA mm'].max()
+    if  (strain_max- strain_max_nextCycle)/strain_max > 0.2 and strain_max > (strain_mean + strain_max)/2:   
+        df_temp_assig = df_temp[df_temp.Zyklus <= cycle]
+        df_temp = df_temp[df_temp.Zyklus > cycle]
+        df_temp_assig.to_csv('df_part{}.csv'.format(i),sep=',',index=False)
+        i+=1
+df_temp.to_csv('df_part{}.csv'.format(i),sep=',',index=False)
+print 'finish'
+
