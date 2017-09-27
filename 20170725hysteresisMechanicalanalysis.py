@@ -164,7 +164,7 @@ for cycle in range (1, maxCycle-1):
 #==============================================================================
    for count in range(maxStrainCount+50,maxStrainCount+counts):  
        try:
-           loop['Strain'][count]/((loop['Stress MPa'][count]-interceptAve_tensile)/eModulusAve_tensile)<(1-yieldStrain)
+           loop['Strain'][count]/((loop['Stress MPa'][count]-interceptAve_tensile)/(1000*eModulusAve_tensile))<(1-yieldStrain)
        except TypeError:
            stress_atYieldPoint = None
            yieldStress = None
