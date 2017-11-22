@@ -21,8 +21,8 @@ if have mean strain loading, should go to "Processing data with mean stress/stra
 ## 1. Correct the raw data
 correct the raw data of each parts as normal way
 ## 2. Binding parts
-Binding each corrected parts together via "partsBinding_interrupedExperiments.py"
-firstly, run the "partsBinding_interrupedExperiments.py" file; secondly, call the partsBinding(n) function, n is the number of parts; thirdly, type in the parts name and output file name
+Binding each corrected parts together via "partsBinding_interrupedExpParts.py"
+firstly, run the "partsBinding_interrupedExpParts.py" file; secondly, call the partsBinding(n) function, n is the number of parts; thirdly, type in the parts name and output file name
 ## 3. Filter Max Min
 Note: the initial strain should be the first data of strain without correction
 ## 4. Mechanical parameter analysis
