@@ -19,16 +19,19 @@ if have mean strain loading, should go to "Processing data with mean stress/stra
 
 # Processing data for tests with interrupted recording/experiments
 ## 1. Correct the raw data
-correct the raw data of each parts as normal way
+a. correct the raw data of each parts as normal way
+b. name the output data follow "SK200_01_exp1_timeData.csv"
 ## 2. Binding parts
-Binding each corrected parts together via "partsBinding_interrupedExpParts.py"
-firstly, run the "partsBinding_interrupedExpParts.py" file; secondly, call the partsBinding(n) function, n is the number of parts; thirdly, type in the parts name and output file name
+a. Binding each corrected parts together via "partsBinding_interrupedExpParts.py"
+b. firstly, run the "partsBinding_interrupedExpParts.py" file; secondly, call the partsBinding(n) function, n is the number of parts; thirdly, type in the parts name and output file name
+c. name the output data follow "SK200_01_timeData_binded.csv"
 ## 3. Filter Max Min
 Note: the initial strain should be the first data of strain without correction
+a. name the output data follow "SK200_01_binded_maxMinData.csv"
 ## 4. Mechanical parameter analysis
-as normal
+Note: the initial strain should be the first data of strain without correction
 ## 5. Strain enenergy calculation
-as normal
+Note: the initial strain should be the first data of strain without correction
 
 # Processing data for tests with holding cycles
 ## 1. Correct the raw data
