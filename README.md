@@ -34,8 +34,11 @@ Note: the initial strain should be the first data of strain without correction
 Note: the initial strain should be the first data of strain without correction
 
 # Processing data for tests with holding cycles
+'timeSequenceDataFilterAndMaxMinDataFilter_withHoldingCyclesDelete' with function of data correction, holding cycle delete, max min filter
 ## 1. Correct the raw data
+if necessary
 ## 2. Binding parts
+if necessary
 ## 3. Filter Max Min
 ## 4. Mechanical parameter analysis
 ## 5. Strain enenergy calculation
