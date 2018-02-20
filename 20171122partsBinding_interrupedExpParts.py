@@ -29,10 +29,18 @@ def partsBinding (n):# n is parts number
 # binding the parts dataframe together
 #==============================================================================
     for k in range(2,n+1):
-        timeCorrection_temp =  globals()['df_part{}'.format(k)]['Zeit s'][1]
-        cycleNrCorrection_temp = globals()['df_part{}'.format(k)]['Zyklus'].min()
-        globals()['df_part{}'.format(k)]['Zeit s'] = globals()['df_part{}'.format(k)]['Zeit s'] + timeCorrection_temp + globals()['df_part{}'.format(k-1)]['Zeit s'].max()
-        globals()['df_part{}'.format(k)]['Zyklus'] = globals()['df_part{}'.format(k)]['Zyklus'] - cycleNrCorrection_temp + globals()['df_part{}'.format(k-1)]['Zyklus'].max() + 1
+        timeCorrection_temp =  globals()['df_part{}'.format(k)]['Time Sec'][1]
+        CycleNrCorrection_temp = globals()['df_part{}'.format(k)]['Cycle'].min()
+        traverseCorrection_temp = globals()['df_part{}'.format(k)]['Traverse mm'][1]
+        loadCorrection_temp = globals()['df_part{}'.format(k)]['Load kN'][1]
+        strainCorrection_temp = globals()['df_part{}'.format(k)]['Strain mm'][1]
+
+        globals()['df_part{}'.format(k)]['Time Sec'] = globals()['df_part{}'.format(k)]['Time Sec'] - timeCorrection_temp + globals()['df_part{}'.format(k-1)]['Time Sec'].max()
+        globals()['df_part{}'.format(k)]['Cycle'] = globals()['df_part{}'.format(k)]['Cycle'] - CycleNrCorrection_temp + globals()['df_part{}'.format(k-1)]['Cycle'].max() + 1
+        globals()['df_part{}'.format(k)]['Traverse mm'] = globals()['df_part{}'.format(k)]['Traverse mm'] - traverseCorrection_temp + globals()['df_part{}'.format(k-1)]['Traverse mm'].iloc[-1]
+        globals()['df_part{}'.format(k)]['Load kN'] = globals()['df_part{}'.format(k)]['Load kN'] - loadCorrection_temp + globals()['df_part{}'.format(k-1)]['Load kN'].iloc[-1]
+        globals()['df_part{}'.format(k)]['Strain mm'] = globals()['df_part{}'.format(k)]['Strain mm'] - strainCorrection_temp + globals()['df_part{}'.format(k-1)]['Strain mm'].iloc[-1]
+
         df_binded = pd.concat([df_binded,globals()['df_part{}'.format(k)]],ignore_index=True)
 #==============================================================================
 # write the binded .csv file
@@ -40,8 +48,4 @@ def partsBinding (n):# n is parts number
     df_binded.to_csv(writeFile_timeSequence_binded, sep=';', index = False)
 
     print 'finish'   
-    return;
-
-        
-    
-        
+    return
