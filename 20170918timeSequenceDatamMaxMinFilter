@@ -12,9 +12,9 @@ from pandas import DataFrame, read_csv
 # input the read file name and write file name
 #==============================================================================
 #print 'Input the file name you want to write the after filtered time sequence data:'
-readFile_timeSequence = 'experimentTimeData_part1.csv'
+readFile_timeSequence = 'SK200_41_experiment_timeData_binded.csv'
 #print 'Input the file name you want to write the Max Min data:'
-writeFile_maxMin = 'experiment2MaxMinData.csv'
+writeFile_maxMin = 'SK200_41_experiment_maxMinData_binded.csv'
 
 #==============================================================================
 # #input data file
@@ -26,16 +26,20 @@ df=pd.read_csv(readFile_timeSequence,sep=';')
 #==============================================================================
 maxCycle=int(df['Zyklus'].max())
 # itterate each cycle 
-dfmax=pd.DataFrame(columns = ['Zyklus','Zeit s','Weg mm','Kraft kN','Instron_full_range mm','Temperatur grd'])
-dfmin=pd.DataFrame(columns = ['Zyklus','Zeit s','Weg mm','Kraft kN','Instron_full_range mm','Temperatur grd'])
+dfmax=pd.DataFrame(columns = ['Zyklus','Zeit s','Weg mm','Kraft kN','Sandner_1983 mm','Temperatur grd'])
+dfmin=pd.DataFrame(columns = ['Zyklus','Zeit s','Weg mm','Kraft kN','Sandner_1983 mm','Temperatur grd'])
 for cycle in range (1, maxCycle+1):
-    print cycle
-    df2=df[df.Zyklus==cycle]
-#may use df2[index=df2.index[df2['Dehnung_fullrange_SH46 mm'].max()]], question: stress max or strain max
-    df3=df2.max()
-    df4=df2.min()
-    dfmax=dfmax.append(df3, ignore_index=True)
-    dfmin=dfmin.append(df4, ignore_index=True)
+    if cycle in df['Zyklus'].values:
+        print cycle
+        df2=df[df.Zyklus==cycle]
+    #may use df2[index=df2.index[df2['Dehnung_fullrange_SH46 mm'].max()]], question: stress max or strain max
+        df3=df2.max()
+        df4=df2.min()
+        dfmax=dfmax.append(df3, ignore_index=True)
+        dfmin=dfmin.append(df4, ignore_index=True)
+#dfmax= dfmax.loc[:,['Zyklus','Zeit s','Weg mm','Kraft kN','Sandner_1983 mm','Temperatur grd']]
+#dfmin= dfmin.loc[:,['Zyklus','Zeit s','Weg mm','Kraft kN','Sandner_1983 mm','Temperatur grd']]
+
 dfmax.columns = ['Zyklus','Zeit Max s','Weg Max mm','Kraft Max kN','Dehnung_fullrange_SH46 Max mm','Temperatur Max grd']
 dfmin.columns = ['Zyklus','Zeit Min s','Weg Min mm','Kraft Min kN','Dehnung_fullrange_SH46 Min mm','Temperatur Min grd']
 dfMaxMin = pd.merge(dfmax,dfmin,how='outer',on='Zyklus')
