@@ -23,12 +23,16 @@ writeFile_timeData_withTrueStressStrain = 'SKA200_08_experiment_timeData_withTru
 
 df=pd.read_csv(readFile_original,sep=';')
 df_firstCycle = pd.read_csv(readFile_firstCycle, sep=',')
-
+#==============================================================================
+# test parameters
+#==============================================================================
+crossSection = 58.905
+gageLength = 15
 #==============================================================================
 # calculate the Eng. and True stress strain
 #==============================================================================
-df['Engineering stress MPa'] = df['Load kN']*1000/50.2655
-df['Engineering strain'] = (df['Strain mm']-df_firstCycle['Strain mm'][0])/(15+df_firstCycle['Strain mm'][0])
+df['Engineering stress MPa'] = df['Load kN']*1000/crossSection
+df['Engineering strain'] = (df['Strain mm']-df_firstCycle['Strain mm'][0])/(gageLength+df_firstCycle['Strain mm'][0])
 df['True stress MPa']= df['Engineering stress MPa']*(1+df['Engineering strain'])
 df['True strain'] = np.log(1+df['Engineering strain'])
 
