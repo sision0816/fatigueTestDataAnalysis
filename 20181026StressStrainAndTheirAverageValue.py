@@ -12,15 +12,15 @@ from pandas import DataFrame, read_csv
 # input the read file name and write file name
 #==============================================================================
 #print 'Input the file name you want to write the after filtered time sequence data:'
-readFile_maxMinData = 'SKA200_28_experiment_maxMinData_binded.csv'
-readFile_firstCycle = 'SKA200_28_cycle1_0.8533kN.CSV'
+readFile_maxMinData = 'SKA200_27_experiment_maxMinData_binded.csv'
+readFile_firstCycle = 'SKA200_27_cycle1_0.8533kN.CSV'
 #print 'Input the file name you want to write the Max Min data:'
-writeFile_maxMinDataWithStressStrainAndTheirAverageValue = 'SKA200_28_experiment_maxMinData_binded_withStressStrainAndTheirAverageValue.csv'
+writeFile_maxMinDataWithStressStrainAndTheirAverageValue = 'SKA200_27_experiment_maxMinData_binded_withStressStrainAndTheirAverageValue.csv'
 
 #==============================================================================
 # #input data file
 #==============================================================================
-maxMinData_df=pd.read_csv(readFile_timeSequence,sep=';')
+maxMinData_df=pd.read_csv(readFile_maxMinData,sep=';')
 firstCycle_df=pd.read_csv(readFile_firstCycle,sep=',')
 
 #==============================================================================
