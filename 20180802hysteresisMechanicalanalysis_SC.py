@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 # input the read file name and write file name
 #==============================================================================
 #print 'Input the file name you want to analysis:' 
-readFile_timeSequence = 'Nr30_experimentTimeData.csv' # in with csv format and in list
+readFile_timeSequence = 'Nr32_TimeData_binded.csv' # in with csv format and in list
 #print 'Input the file name of first cycle:' 
-readFile_firstCycle =  'Nr30_experimentTimeData.csv'
+readFile_firstCycle =  'Nr32_TimeData_binded.csv'
 #print 'Input the file name you want to write the after mechanical analysis data:'
 writeFile_mechanicalAnalysisData = 'experimentHysteresisMechanicalAanalysis_20_0.999_20_0.999.csv'
 
@@ -183,7 +183,7 @@ for cycle in range (1, maxCycle-1):
            else:
                if loop['Strain'][count]/((loop['Stress MPa'][count]-interceptAve_tensile)/(eModulusAve_tensile*1000))<(1-yieldStrain):
                    stress_atYieldPoint = loop['Stress MPa'][count]
-                   yieldStress = stressMax - stress_atYieldPoint
+#                   yieldStress = stressMax - stress_atYieldPoint # not sure, yieldStress=?stress_atYieldPoint or  yieldStress =? stressMax - stress_atYieldPoint, as bausinger effect, no definition about yield stress of hysteresis loop was found
         #          print 'yield point find'
         #       if loop['Stress MPa'][count] < stressMean:
         #           yieldStress = eModulusAve_tensile*yieldStrain
@@ -231,7 +231,7 @@ for cycle in range (1, maxCycle-1):
            anelasticStrain = 2*strainAmp - elasticStrain-plasticStrain
        except TypeError:
            anelasticStrain = None
-       dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_tensile,eModulusAve_compressive,yieldStress,elasticStrain,plasticStrain,anelasticStrain,effectiveStress,backStress] #asign the vale to the dataframe
+       dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_tensile,eModulusAve_compressive, stress_atYieldPoint,elasticStrain,plasticStrain,anelasticStrain,effectiveStress,backStress] #asign the vale to the dataframe
     #==============================================================================
 #  write dataframe to  csv
 #==============================================================================
