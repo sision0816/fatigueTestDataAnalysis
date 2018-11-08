@@ -11,15 +11,16 @@ import numpy as np
 from pandas import DataFrame, read_csv,read_excel
 import scipy
 import scipy.stats
+import matplotlib.pyplot as plt
 #==============================================================================
 # input the read file name and write file name
 #==============================================================================
 #print 'Input the file name you want to analysis:' 
-readFile_timeSequence = 'SK200_40_experiment_timeData_binded.csv' # in with csv format and in list
+readFile_timeSequence = 'Nr29_experiment_timeData.csv' # in with csv format and in list
 #print 'Input the file name of first cycle:' 
-readFile_firstCycle =  'SK200_40_cycle1_1kN.csv'
+readFile_firstCycle =  'Nr29_cycle1_1kN.csv'
 #print 'Input the file name you want to write the after mechanical analysis data:'
-writeFile_mechanicalAnalysisData = 'experimentHysteresisMechanicalAanalysis_40_0.99_40_0.99.csv'
+writeFile_mechanicalAnalysisData = 'experimentHysteresisMechanicalAanalysis_40_0.99_40_0.99_0.05%yield.csv'
 
 #==============================================================================
 # read the csv data file into dataframe
@@ -32,7 +33,7 @@ df=pd.read_csv(readFile_timeSequence,sep=';')
 #==============================================================================
 
 firstCycleFile = pd.read_csv(readFile_firstCycle,sep=';') 
-extensormeterInitialValue = firstCycleFile['Sandner_1983 mm'][0]
+extensormeterInitialValue = firstCycleFile['Instron mm'][0]
 crossSection = 58.905
 gageLength = 15
 yieldStrain = 0.0005
@@ -42,7 +43,7 @@ yieldStrain = 0.0005
 #==============================================================================
 
 df['Stress MPa']=pow(10,3)*df['Kraft kN']/crossSection #Stress unite in MPa
-df['Strain']=(df['Sandner_1983 mm']-extensormeterInitialValue)/(gageLength+extensormeterInitialValue)
+df['Strain']=(df['Instron mm']-extensormeterInitialValue)/(gageLength+extensormeterInitialValue)
 
 #==============================================================================
 # itterate each cycle
@@ -53,7 +54,7 @@ maxCycle=int(df['Zyklus'].max())
 # define the output dataframe of max min data
 dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','Stress Amplitude MPa','Stress Mean MPa','Strain Max','Strain Min','Strain Amplitude','Strain Mean', 'Tensile Elastic Modulus GPa','Compressive Elastic Modulus GPa','Yield Stress MPa','Elastic Strain','Plastic Strain','Anelastic Strain', 'Effective Stress MPa','Back Stress MPa'])
 
-for cycle in range (1, maxCycle-1):
+for cycle in range (1, maxCycle-1, 10):
    if cycle in df['Zyklus'].values:
        print cycle
        loop=df[df.Zyklus==cycle]
@@ -91,9 +92,9 @@ for cycle in range (1, maxCycle-1):
                    break
                eModulus_tensile = 0.001*slope_tensile 
                intercept_tensile = intercept_tensile
-    #           print r_value_tensile**2
-    #          print j
-    #          print eModulus_tensile
+#               print r_value_tensile**2
+#               print j
+#               print eModulus_tensile
                j+=1
                if r_value_tensile**2 >= 0.99:
                    eModulusSum_tensile+=eModulus_tensile
@@ -129,9 +130,9 @@ for cycle in range (1, maxCycle-1):
                    break
                eModulus_compressive = 0.001*slope_compressive 
                intercept_compressive = intercept_compressive
-     #          print r_value_compressive**2
-     #          print k
-     #          print eModulus_compressive
+#               print r_value_compressive**2
+#               print k
+#               print eModulus_compressive
                k+=1
                if r_value_compressive**2 >= 0.99:
                    eModulusSum_compressive+=eModulus_compressive
@@ -169,9 +170,10 @@ for cycle in range (1, maxCycle-1):
     #==============================================================================
     # # itterate each data point, yield stress, effective stress and back stress 
     #==============================================================================
-       for count in range(maxStrainCount+50,maxStrainCount+counts):  
+       for count in range(maxStrainCount+15,maxStrainCount+counts):  
+#           print count
            try:
-               loop['Strain'][count]/((loop['Stress MPa'][count]-interceptAve_tensile)/eModulusAve_tensile)<(1-yieldStrain)
+               (loop['Stress MPa'][count]-interceptAve_tensile)/(eModulusAve_tensile*1000) - loop['Strain'][count] 
            except TypeError:
                stress_atYieldPoint = None
                yieldStress = None
@@ -179,23 +181,24 @@ for cycle in range (1, maxCycle-1):
                stress_atYieldPoint = None
                yieldStress = None
            else:
-               stress_atYieldPoint = loop['Stress MPa'][count]
-               yieldStress = stressMax - stress_atYieldPoint
-    #          print 'yield point find'
-    #       if loop['Stress MPa'][count] < stressMean:
-    #           yieldStress = eModulusAve_tensile*yieldStrain
-    #           print 'yield point not find'
-    #           break
-           try:
-               (stressMax - stress_atYieldPoint)/2
-           except TypeError:
-               effectiveStress = None
-               backStress = None
-               break
-           else:
-               effectiveStress = (stressMax - stress_atYieldPoint)/2
-               backStress = stressAmp - effectiveStress #instead of stressMax - effectiveStress, because case of with mean stress
-               break
+               if (loop['Stress MPa'][count]-interceptAve_tensile)/(eModulusAve_tensile*1000) - loop['Strain'][count] > yieldStrain:
+                   stress_atYieldPoint = loop['Stress MPa'][count]
+#                   yieldStress = stressMax - stress_atYieldPoint # not sure, yieldStress=?stress_atYieldPoint or  yieldStress =? stressMax - stress_atYieldPoint, as bausinger effect, no definition about yield stress of hysteresis loop was found
+        #          print 'yield point find'
+        #       if loop['Stress MPa'][count] < stressMean:
+        #           yieldStress = eModulusAve_tensile*yieldStrain
+        #           print 'yield point not find'
+        #           break
+                   try:
+                       (stressMax - stress_atYieldPoint)/2
+                   except TypeError:
+                       effectiveStress = None
+                       backStress = None
+                       break
+                   else:
+                       effectiveStress = (stressMax - stress_atYieldPoint)/2
+                       backStress = stressAmp - effectiveStress #instead of stressMax - effectiveStress, because case of with mean stress
+                       break
     #==============================================================================
     # # calculate elastic and plastic strain
     #==============================================================================
@@ -228,7 +231,7 @@ for cycle in range (1, maxCycle-1):
            anelasticStrain = 2*strainAmp - elasticStrain-plasticStrain
        except TypeError:
            anelasticStrain = None
-       dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_tensile,eModulusAve_compressive,yieldStress,elasticStrain,plasticStrain,anelasticStrain,effectiveStress,backStress] #asign the vale to the dataframe
+       dfOutput.loc[len(dfOutput)] = [cycle,stressMax,stressMin,stressAmp,stressMean,strainMax,strainMin,strainAmp,strainMean,eModulusAve_tensile,eModulusAve_compressive, stress_atYieldPoint,elasticStrain,plasticStrain,anelasticStrain,effectiveStress,backStress] #asign the vale to the dataframe
     #==============================================================================
 #  write dataframe to  csv
 #==============================================================================
