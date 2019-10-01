@@ -58,7 +58,7 @@ dfOutput = pd.DataFrame(columns = ['Cycle','Stress Max MPa','Stress Min MPa','St
 
 for cycle in range (1, maxCycle-1):#the maxCycle-1 cycle may cause error in the integration
    if cycle in df['Zyklus'].values:
-       print cycle
+       print (cycle)
        loop=df[df.Zyklus==cycle]
        indexStrainMin = loop.Strain[loop.Strain==loop.Strain.min()].index.tolist()[0] #the index of the min strain
        indexStrainMax = loop.Strain[loop.Strain==loop.Strain.max()].index.tolist()[0] #the index of the max strain
@@ -124,4 +124,4 @@ for cycle in range (1, maxCycle-1):#the maxCycle-1 cycle may cause error in the 
 #==============================================================================
 dfOutput.to_csv(writeFile_strainEnergyCalculationResult, sep=';', index = False)
 
-print 'finish'   
+print ('finish')   
